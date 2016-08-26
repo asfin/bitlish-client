@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-from time import time
-
 import os
 import argparse
+from time import time
 from pprint import pprint
 
 import asyncio
@@ -11,9 +10,8 @@ from Bitlish import Bitlish, BitlishError
 
 TOKEN = os.getenv('TOKEN')
 TOKEN = TOKEN or "fixed:qweqwe"
-PREC = 3
 
-parser = argparse.ArgumentParser(description='Simple periodic buy-sell example')
+parser = argparse.ArgumentParser(description='Simple call with exception handling')
 parser.add_argument('-t', '--token', help='API token')
 
 

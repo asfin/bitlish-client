@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import os
 import argparse
+import math
 from time import time
 from random import random
-import math
 from decimal import Decimal, getcontext, ROUND_FLOOR
 
 import asyncio

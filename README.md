@@ -24,14 +24,15 @@ else:
 ```
 
 # Examples
-`simple_call.py` - simple API call, you can get error with invalid token
+`simple_call.py` - simple API call, you can get error with invalid token.
 
-`simple_call_with_exception.py` - try/except example for error handling
+`parallel_calls.py` - example of parallel call execution.
 
-`simple_bot.py` - periodic random buying and selling in selected pairs with tiny amounts(~0.001btc)
+`simple_call_with_exception.py` - try/except example for error handling.
+
+`simple_bot.py` - periodic random buying and selling in selected pairs with tiny amounts(~0.001btc).
 
 # Notes
 `throw_errors=True` parameter raises exception when error from server is received,
 see `simple_call_with_exception.py` for example.
 
-WebSocket disconnect handling is poor, will be fixed soon.
