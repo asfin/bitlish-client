@@ -64,6 +64,7 @@ def try_buy(pair, max_amount, balances):
 
 @asyncio.coroutine
 def main():
+    global b
     loop = asyncio.get_event_loop()
     b = yield from Bitlish(TOKEN).init()
 
@@ -72,7 +73,6 @@ def main():
     AMOUNT = 0.001
     while True:
         for cur in CURRENCIES:
-            yield from asyncio.sleep(PERIOD/len(CURRENCIES))
             pair = "btc" + cur
             print("pair", pair)
             balances = (yield from b.balance())["data"]
@@ -85,6 +85,7 @@ def main():
                 f = try_sell(pair, AMOUNT+random()/1000, balances)
             # run handler
             res = yield from f
+            yield from asyncio.sleep(PERIOD/len(CURRENCIES))
 
     b.stop()
 
