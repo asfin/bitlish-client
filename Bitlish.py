@@ -6,6 +6,7 @@ import json
 class BitlishError(Exception):
     pass
 
+
 class Bitlish(object):
 
     def __init__(self, token=None, timeout=30, throw_errors=True, url='wss://bitlish.com/ws'):
@@ -14,7 +15,8 @@ class Bitlish(object):
         self.req_cnt = 0
         self.token = token
         self.timeout = timeout
-        self.waiting = {}
+        self.waiting = dict()
+        self.ev_hdls = dict()
         self.listener = None
         self.throw_errors = throw_errors
         self.loop = asyncio.get_event_loop()
@@ -33,12 +35,15 @@ class Bitlish(object):
                 self.listener = self.loop.create_task(self._listen())
             except Exception as _e:
                 e = _e
-                yield from asyncio.sleep(i*2)
+                yield from asyncio.sleep(i * 2)
             else:
                 break
         if e:
             raise e
         return self
+
+    def on_event(self, ev_name, coro):
+        self.ev_hdls[ev_name] = coro
 
     def __del__(self):
         self.stop()
@@ -58,19 +63,28 @@ class Bitlish(object):
             # print(ans, self.waiting.keys())
             if ans:
                 resp = json.loads(ans)
-                mark = resp.get('mark')
-                if mark:
-                    # with (yield from self.wlock):
-                    state = self.waiting.get(str(mark), None)
-                    if state:
-                        # print(ans)
-                        t = state['timer']
-                        # TODO: race with timeout handler?
-                        # case: while processing this call, timer is triggered, but it will be canceled in next line
-                        # python docs said that `cancel` "does not guarantee that the task will be cancelled"
-                        t.cancel()
-                        q = state['queue']
-                        q.put_nowait(resp)
+
+                ans_type = resp.get('type')
+                if ans_type == 'response':
+                    mark = resp.get('mark')
+                    if mark:
+                        # with (yield from self.wlock):
+                        state = self.waiting.get(str(mark), None)
+                        if state:
+                            # print(ans)
+                            t = state['timer']
+                            # TODO: race with timeout handler?
+                            # case: while processing this call, timer is triggered, but it will be canceled in next line
+                            # python docs said that `cancel` "does not guarantee that the task will be cancelled"
+                            t.cancel()
+                            q = state['queue']
+                            q.put_nowait(resp)
+                elif ans_type == 'event':
+                    call = resp.get('call')
+                    coro = self.ev_hdls.get(call)
+                    if coro:
+                        self.loop.create_task(coro(resp))
+
         self.loop.create_task(self.init())
 
     @asyncio.coroutine
