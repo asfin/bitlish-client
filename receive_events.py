@@ -29,11 +29,13 @@ def handle_payment_info(ev):
 def main():
     api = yield from Bitlish(TOKEN, timeout=10, throw_errors=False).init()
 
+    a = yield from api.resign()  # initialize session
+
     api.on_event('public_trade_order_cancel', handle_order_event)
     api.on_event('public_trade_order_create', handle_order_event)
     api.on_event('payment_info', handle_payment_info)
 
-    yield from asyncio.sleep(150)  # wait for some events
+    yield from asyncio.sleep(1500)  # wait for some events
 
     api.stop()
 
